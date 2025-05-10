@@ -1,0 +1,17 @@
+requests
+ccxt
+pandas
+numpy
+ta
+python-dotenv
+websocket-client
+websockets
+schedule
+matplotlib>=3.7
+tenacity
+pytest
+python-telegram-bot
+nest_asyncio
+psutil
+api.bybit
+apscheduler

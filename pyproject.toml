@@ -1,0 +1,19 @@
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+exclude = [
+  "tests/data",
+  ".venv",
+  "venv",
+  "logs",
+  "**/__pycache__",
+  "**/*.pyc",
+  "site-packages"
+]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["D100", "D104", "T201"]  # убрали ANN101/ANN102
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"  # или "numpy" — по вкусу

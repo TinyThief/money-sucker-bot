@@ -16,6 +16,7 @@ from tools.daily_performance_checker import daily_performance_check
 from trade_executor_core import place_order, risk_manager, init_exchange
 from utils.telegram_utils import send_telegram_message
 from backtest.optimize_confidence import scheduler
+from tools.sl_tp_optimizer import run_optimizer
 
 cooldown_active = False
 cooldown_until = None
@@ -70,6 +71,13 @@ async def adjust_leverage_safe(symbol: str, atr_percent: float | None):
             logger.info(f"[BybitAsync] Установлено плечо {target_lev}x для {symbol}")
     except Exception as e:
         logger.error(f"❌ Ошибка изменения плеча: {e}")
+
+async def auto_train_sl_tp(interval_hours=24):
+    while True:
+        logger.info("🧠 Автообучение SL/TP запускается...")
+        run_optimizer()
+        logger.info("✅ SL/TP веса обновлены.")
+        await asyncio.sleep(interval_hours * 3600)
 
 async def strategy_worker(symbol: str):
     global cooldown_active, cooldown_until, loss_streak
@@ -138,6 +146,7 @@ async def launch_background_tasks():
         monitor_balance_status(),
         monitor_liquidations(),
         periodic_performance_check(),
+        auto_train_sl_tp(),  # автообучение SL/TP
     )
 
 async def start_full():

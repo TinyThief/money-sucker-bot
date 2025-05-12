@@ -30,9 +30,7 @@ def get_timestamp() -> str:
 
 def create_signature(payload: str) -> str:
     return hmac.new(
-        bytes(api_secret or "", "utf-8"),
-        bytes(payload, "utf-8"),
-        hashlib.sha256
+        bytes(api_secret or "", "utf-8"), bytes(payload, "utf-8"), hashlib.sha256
     ).hexdigest()
 
 
@@ -68,7 +66,9 @@ async def set_leverage(symbol: str, leverage: int):
             try:
                 data = await resp.json()
             except Exception as e:
-                logger.error(f"[BybitAsync] ❌ Ошибка чтения JSON ответа set_leverage: {e}")
+                logger.error(
+                    f"[BybitAsync] ❌ Ошибка чтения JSON ответа set_leverage: {e}"
+                )
                 raise
 
             if not data or data.get("retCode") != 0:
@@ -85,6 +85,7 @@ async def get_current_leverage(symbol: str) -> int | None:
 
 ...
 
+
 async def get_open_positions():
     endpoint = "/v5/position/list"
     url = BASE_URL + endpoint
@@ -100,7 +101,9 @@ async def get_open_positions():
             async with session.post(url, headers=headers, data=params_json) as resp:
                 data = await resp.json()
         except Exception as e:
-            logger.error(f"[BybitAsync] ❌ Ошибка чтения JSON ответа get_open_positions: {e}")
+            logger.error(
+                f"[BybitAsync] ❌ Ошибка чтения JSON ответа get_open_positions: {e}"
+            )
             return []
 
     if not data or data.get("retCode") != 0:
@@ -108,7 +111,9 @@ async def get_open_positions():
         return []
 
     if not isinstance(data.get("result", {}).get("list"), list):
-        logger.error(f"[BybitAsync] ❌ Неверный формат ответа get_open_positions: {data}")
+        logger.error(
+            f"[BybitAsync] ❌ Неверный формат ответа get_open_positions: {data}"
+        )
         return []
 
     raw_positions = data["result"].get("list", [])
@@ -117,13 +122,15 @@ async def get_open_positions():
     for pos in raw_positions:
         size = float(pos.get("size", 0))
         if size > 0:
-            parsed_positions.append({
-                "symbol": pos.get("symbol"),
-                "side": pos.get("side"),
-                "size": size,
-                "entry": float(pos.get("entryPrice", 0)),
-                "pnl": float(pos.get("unrealisedPnl", 0)),
-            })
+            parsed_positions.append(
+                {
+                    "symbol": pos.get("symbol"),
+                    "side": pos.get("side"),
+                    "size": size,
+                    "entry": float(pos.get("entryPrice", 0)),
+                    "pnl": float(pos.get("unrealisedPnl", 0)),
+                }
+            )
 
     return parsed_positions
 
@@ -143,7 +150,7 @@ async def fetch_balance():
         return None
 
 
-async def get_ohlcv(symbol: str, interval: str = "1m", limit: int = 200):
+async def get_ohlcv(symbol: str, interval: str = "60", limit: int = 150):
     endpoint = "/v5/market/kline"
     url = BASE_URL + endpoint
     symbol = symbol.replace("/", "")
@@ -152,7 +159,7 @@ async def get_ohlcv(symbol: str, interval: str = "1m", limit: int = 200):
         "category": "linear",
         "symbol": symbol,
         "interval": interval,
-        "limit": limit
+        "limit": limit,
     }
 
     try:
@@ -164,10 +171,14 @@ async def get_ohlcv(symbol: str, interval: str = "1m", limit: int = 200):
         return []
 
     if not data or data.get("retCode") != 0:
-        logger.warning(f"[BybitAsync] OHLCV ошибка: {data}")
+        logger.warning(f"[BybitAsync] OHLCV ошибка: {json.dumps(data, indent=2)}")
         return []
 
     raw_klines = data.get("result", {}).get("list", [])
+    if not raw_klines:
+        logger.warning(f"[BybitAsync] ⚠️ Пустой OHLCV для {symbol}")
+        return []
+
     return [
         {
             "timestamp": int(k[0]),
@@ -175,7 +186,7 @@ async def get_ohlcv(symbol: str, interval: str = "1m", limit: int = 200):
             "high": float(k[2]),
             "low": float(k[3]),
             "close": float(k[4]),
-            "volume": float(k[5])
+            "volume": float(k[5]),
         }
         for k in raw_klines
     ]
@@ -186,11 +197,7 @@ async def update_stop_loss(symbol: str, stop_loss_price: float):
     url = BASE_URL + endpoint
     symbol = symbol.replace("/", "")
 
-    params = {
-        "symbol": symbol,
-        "stopLoss": str(stop_loss_price),
-        "category": "linear"
-    }
+    params = {"symbol": symbol, "stopLoss": str(stop_loss_price), "category": "linear"}
 
     timestamp = get_timestamp()
     params_json = json.dumps(params, separators=(",", ":"))
@@ -218,10 +225,7 @@ async def get_current_price(symbol: str) -> float | None:
     url = BASE_URL + endpoint
     symbol = symbol.replace("/", "")
 
-    params = {
-        "category": "linear",
-        "symbol": symbol
-    }
+    params = {"category": "linear", "symbol": symbol}
 
     try:
         async with aiohttp.ClientSession() as session:
@@ -248,11 +252,7 @@ async def get_order_book(symbol: str) -> dict | None:
     url = BASE_URL + endpoint
     symbol = symbol.replace("/", "")
 
-    params = {
-        "category": "linear",
-        "symbol": symbol,
-        "limit": 5
-    }
+    params = {"category": "linear", "symbol": symbol, "limit": 5}
 
     try:
         async with aiohttp.ClientSession() as session:
@@ -279,7 +279,7 @@ async def get_order_book(symbol: str) -> dict | None:
         "asks": [
             {"price": float(ask[0]), "size": float(ask[1])}
             for ask in result.get("asks", [])
-        ]
+        ],
     }
 
 
@@ -288,11 +288,7 @@ async def get_open_orders(symbol: str):
     url = BASE_URL + endpoint
     symbol = symbol.replace("/", "")
 
-    params = {
-        "symbol": symbol,
-        "orderStatus": "New",
-        "category": "linear"
-    }
+    params = {"symbol": symbol, "orderStatus": "New", "category": "linear"}
 
     timestamp = get_timestamp()
     params_json = json.dumps(params, separators=(",", ":"))

@@ -30,9 +30,10 @@ __all__ = [
 # именно отсюда: from utils.telegram_utils import send_telegram_message, ...
 # Старый модуль telegram_sender должен быть удалён и не использоваться.
 
-async def send_telegram_message(message: str):
+async def send_telegram_message(message: str, parse_mode: str = "HTML"):
     try:
-        await bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message, parse_mode="HTML")
+        await bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message, parse_mode=parse_mode)
+
     except Exception as e:
         print(f"❌ Ошибка при отправке сообщения в Telegram: {e}")
 

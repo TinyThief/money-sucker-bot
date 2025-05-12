@@ -1,4 +1,10 @@
-from strategies.smc_strategy import run_smc_strategy
+from api.bybit_async import get_ohlcv
+import asyncio
+
+async def test_fetch():
+    data = await get_ohlcv("BTCUSDT", interval="1h", limit=5)
+    print("Данные OHLCV:", data)
 
 if __name__ == "__main__":
-    run_smc_strategy(symbol="ETHUSDT", capital=1000, risk_pct=0.01)
+    asyncio.run(test_fetch())
+    

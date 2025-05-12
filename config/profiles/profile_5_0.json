@@ -1,0 +1,21 @@
+{
+    "score": 0,
+    "weights": {
+        "bos": 20,
+        "fvg": 20,
+        "rsi_extreme": 30,
+        "rsi_bounce": 5,
+        "ema_filter": 15,
+        "macd": 10,
+        "vwap": 10,
+        "volume_spike": 15,
+        "candle_confirm": 5,
+        "bounce_vwap": 15,
+        "obv_trend": 5,
+        "liq_nearby": 0,
+        "htf_match_4h": 10,
+        "htf_mismatch_4h": -5,
+        "htf_match_1d": 10,
+        "htf_mismatch_1d": -10
+    }
+}

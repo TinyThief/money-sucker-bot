@@ -1,7 +1,6 @@
 # config/settings.py
 
 import os
-
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,3 +13,6 @@ SHOW_THRESHOLD_DEBUG = os.getenv("SHOW_THRESHOLD_DEBUG", "false").lower() == "tr
 
 # AUTO_TRADE — псевдоним для LIVE_MODE (для совместимости)
 AUTO_TRADE = LIVE_MODE
+
+# Глобальный риск на сделку по умолчанию (в процентах)
+DEFAULT_RISK_PCT = float(os.getenv("DEFAULT_RISK_PCT", "0.01"))

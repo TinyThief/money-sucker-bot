@@ -6,6 +6,7 @@ from log_setup import logger
 from strategies.smc_strategy import run_smc_strategy
 from utils.load_tickers import load_tickers
 from utils.telegram_utils import send_telegram_message
+from config import settings  # ⬅️ Подключаем глобальные настройки
 
 alert_sent: bool = False
 
@@ -27,19 +28,19 @@ async def monitor_strategies_status() -> None:
                 await send_event_heartbeat(status_text)
                 last_known_status["strategies_running"] = current_strategies_running
 
-            # Теперь основная проверка падения стратегий и перезапуск
+            # Проверка падения стратегий и попытка перезапуска
             if strategy_stop_event.is_set():
                 if not alert_sent:
                     logger.warning("🚨 Стратегии остановлены! Отправка алерта в Telegram.")
                     await send_telegram_message("🚨 ВНИМАНИЕ: Стратегии остановились! Попытка перезапуска через 30 секунд...")
                     alert_sent = True
 
-                    await asyncio.sleep(30)  # Немного подождать перед перезапуском
+                    await asyncio.sleep(30)  # Пауза перед перезапуском
 
                     logger.info("♻️ Попытка перезапустить стратегии...")
                     await restart_strategies()
             else:
-                alert_sent = False  # Если всё снова норм — сбрасываем флаг
+                alert_sent = False  # Если восстановились — сбрасываем флаг
 
         except Exception as e:
             logger.error(f"Ошибка в monitor_strategies_status: {e}")
@@ -52,12 +53,12 @@ async def restart_strategies() -> None:
             asyncio.create_task(run_smc_strategy(
                 symbol=symbol,
                 capital=1000,
-                default_risk_pct=0.01,
+                default_risk_pct=settings.DEFAULT_RISK_PCT,
             ))
 
         await send_telegram_message("✅ Стратегии успешно перезапущены!")
 
-        # После перезапуска сбрасываем стоп-флаг
+        # Сброс флага остановки
         strategy_stop_event.clear()
 
     except Exception as e:

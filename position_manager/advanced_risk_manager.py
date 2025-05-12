@@ -38,7 +38,7 @@ class AdvancedRiskManager:
         score = max(min(score, 1.0), 0.0)
         return self.min_risk_pct + (self.max_risk_pct - self.min_risk_pct) * score
 
-    def calculate_position_size(self, balance: float, entry: float, stop: float, confidence_score: float) -> float:
+    def calculate_position_size(self, balance: float, entry: float, stop: float, confidence_score: float, leverage: float = 1.0) -> float:
         if balance is None or entry is None or stop is None or entry <= 0 or stop <= 0:
             logger.error("❌ Некорректные значения balance, entry или stop.")
             return 0.0
@@ -47,6 +47,6 @@ class AdvancedRiskManager:
             logger.error("❌ SL расстояние равно 0.")
             return 0.0
         risk_pct = self.risk_pct_from_confidence(confidence_score)
-        risk_amount = balance * risk_pct
+        risk_amount = balance * risk_pct * leverage
         size = risk_amount / sl_distance
         return round(size, 4)

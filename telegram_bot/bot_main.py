@@ -21,6 +21,10 @@ from telegram_bot.commands import (
     cmd_status,
     cmd_stop_strategies,
     cmd_version,
+    cmd_pause_trading,
+    cmd_resume_trading,
+    cmd_halt,
+    cmd_unhalt,
 )
 from telegram_bot.commands_optimize import cmd_optimize_confidence
 from telegram_bot.debug_commands import (
@@ -55,6 +59,10 @@ async def run_telegram_async() -> None:
         BotCommand("start", "📂 Главное меню"),
         BotCommand("start_strategies", "▶️ Запустить стратегии"),
         BotCommand("stop_strategies", "⏹ Остановить стратегии"),
+        BotCommand("pause_trading", "⏸ Приостановить входы"),
+        BotCommand("resume_trading", "▶️ Возобновить входы"),
+        BotCommand("halt", "🛑 Полная остановка (halt.flag)"),
+        BotCommand("unhalt", "♻️ Снять halt и разрешить запуск"),
         BotCommand("status", "📊 Статус стратегий"),
         BotCommand("positions", "📈 Открытые позиции"),
         BotCommand("balance", "💰 Баланс счета"),
@@ -79,6 +87,10 @@ async def run_telegram_async() -> None:
     app.add_handler(CommandHandler("start", start_menu))
     app.add_handler(CommandHandler("start_strategies", cmd_start_strategies))
     app.add_handler(CommandHandler("stop_strategies", cmd_stop_strategies))
+    app.add_handler(CommandHandler("pause_trading", cmd_pause_trading))
+    app.add_handler(CommandHandler("resume_trading", cmd_resume_trading))
+    app.add_handler(CommandHandler("halt", cmd_halt))
+    app.add_handler(CommandHandler("unhalt", cmd_unhalt))
     app.add_handler(CommandHandler("status", cmd_status))
     app.add_handler(CommandHandler("positions", cmd_positions))
     app.add_handler(CommandHandler("balance", cmd_balance))

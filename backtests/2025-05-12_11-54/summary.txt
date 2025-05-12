@@ -1,0 +1,19 @@
+Grid Search Summary
+Score: 0.0000
+
+bos: 40
+fvg: 20
+rsi_extreme: 10
+rsi_bounce: 10
+ema_filter: 10
+macd: 5
+vwap: 15
+volume_spike: 15
+candle_confirm: 5
+bounce_vwap: 5
+obv_trend: 5
+liq_nearby: 10
+htf_match_4h: 10
+htf_mismatch_4h: -5
+htf_match_1d: 20
+htf_mismatch_1d: -10
